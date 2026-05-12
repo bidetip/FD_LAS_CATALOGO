@@ -1,0 +1,9 @@
+[
+  {
+    "codigo": "LAS-001",
+    "nombre": "Producto de ejemplo",
+    "descripcion": "Descripción breve del producto.",
+    "precio": 120,
+    "imagen": "fotos1/18KB1390L.webp"
+  }
+]
