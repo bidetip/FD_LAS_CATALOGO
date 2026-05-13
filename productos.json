@@ -1,26 +1,8 @@
-[
-  {
-    "codigo": "18KBSB10163L",
-    "descripcion": "PULSERA DE ZAFIRO AZUL Y DIAMANTES - 18K ORO BLANCO/AMARILLO",
-    "detalle_tecnico": "13 Zafiro Azul-0.377ct; 9 Diamante-0.190ct; 1.56g oro 18K",
-    "tamano": "6.7 pulgadas",
-    "precio_venta": 858,
-    "imagen": "https://raw.githubusercontent.com/USUARIO/REPO/BRANCH/path/to/18KBSB10163L.jpg"
-  },
-  {
-    "codigo": "18KRBB10163L-KY",
-    "descripcion": "PULSERA DE RUBÍ Y DIAMANTES - 18K ORO AMARILLO",
-    "detalle_tecnico": "9 Diamante-0.189ct; 13 Rubí-0.381ct; 1.59g oro 18K",
-    "tamano": "6.7 pulgadas",
-    "precio_venta": 858,
-    "imagen": "https://raw.githubusercontent.com/USUARIO/REPO/BRANCH/path/to/18KRBB10163L-KY.jpg"
-  },
-  {
-    "codigo": "18KRBB10163L-KW",
-    "descripcion": "PULSERA DE RUBÍ Y DIAMANTES - 18K ORO BLANCO",
-    "detalle_tecnico": "9 Diamante-0.191ct; 13 Rubí-0.387ct; 1.49g oro 18K",
-    "tamano": "6.7 pulgadas",
-    "precio_venta": 858,
-    "imagen": "https://raw.githubusercontent.com/USUARIO/REPO/BRANCH/path/to/18KRBB10163L-KW.jpg"
-  }
-]
+{
+  "codigo": "18KR47138EL",
+  "descripcion": "DIAMOND EARRING 18KW",
+  "detalle_tecnico": "D66-0.243CT T-0.190CT 1.78G 18KW",
+  "tamaño": "N/A",
+  "precio": 485,
+  "imagen": "fotos1/18KR47138EL.webp"
+}
