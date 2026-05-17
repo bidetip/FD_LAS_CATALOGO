@@ -6902,5 +6902,173 @@
     btns.forEach(x=>x.classList.remove('active'));b.classList.add('active');cat=b.dataset.f;filter();
   }));
 </script>
+
+<script>
+(function(){
+  const STORE_KEY = 'fd_analytics';
+  
+  function getStore(){
+    try{ return JSON.parse(localStorage.getItem(STORE_KEY)||'{}'); }
+    catch(e){ return {}; }
+  }
+  function saveStore(d){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(d)); }catch(e){}
+  }
+  function record(type, data){
+    const d = getStore();
+    const ts = Date.now();
+    if(!d.events) d.events = [];
+    d.events.push({type, ts, ...data});
+    if(d.events.length > 5000) d.events = d.events.slice(-5000);
+    saveStore(d);
+  }
+
+  // 1. Vista de joya (cuando la imagen entra en viewport)
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const card = e.target;
+        const cod = card.querySelector('.codigo')?.textContent;
+        const cat = card.dataset.cat;
+        if(cod) record('view',{cod,cat});
+        observer.unobserve(card);
+      }
+    });
+  },{threshold:0.5});
+  document.querySelectorAll('.card').forEach(c=>observer.observe(c));
+
+  // 2. Tiempo en lightbox (joya abierta)
+  let lbStart = null, lbCod = null;
+  const origShowLB = window.showLB;
+  const lb = document.getElementById('lb');
+  if(lb){
+    const mo = new MutationObserver(()=>{
+      if(lb.classList.contains('open')){
+        lbStart = Date.now();
+        lbCod = document.getElementById('lb-cod')?.textContent;
+      } else {
+        if(lbStart && lbCod){
+          const secs = Math.round((Date.now()-lbStart)/1000);
+          if(secs > 0) record('lightbox',{cod:lbCod, secs});
+        }
+        lbStart = null; lbCod = null;
+      }
+    });
+    mo.observe(lb,{attributes:true, attributeFilter:['class']});
+  }
+
+  // 3. Búsquedas
+  const qi = document.getElementById('q');
+  if(qi){
+    let searchTimer;
+    qi.addEventListener('input',()=>{
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(()=>{
+        const q = qi.value.trim();
+        if(q.length > 1) record('search',{q});
+      },800);
+    });
+  }
+
+  // 4. Filtros por categoría
+  document.querySelectorAll('.fil button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      record('filter',{cat: b.dataset.f});
+    });
+  });
+
+  // 5. Dispositivo y sesión
+  const d = getStore();
+  if(!d.sessions) d.sessions = [];
+  d.sessions.push({
+    ts: Date.now(),
+    device: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+    w: window.innerWidth
+  });
+  if(d.sessions.length > 500) d.sessions = d.sessions.slice(-500);
+  saveStore(d);
+
+})();
+</script>
+
+
+<script>
+(function(){
+  const SHEETS = 'https://script.google.com/macros/s/AKfycbxm3G00SsRthqmpUelMOlE-dWvmHmoAdyNcjnCICcne0iCQGfdxZDb3JZbFQS6xJ_Rc/exec';
+
+  function enviar(data){
+    fetch(SHEETS, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    }).catch(()=>{});
+  }
+
+  function device(){
+    return /Mobi|Android/i.test(navigator.userAgent) ? 'Celular' : 'Computadora';
+  }
+
+  // 1. Vista de joya (scroll)
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const cod = e.target.querySelector('.codigo')?.textContent;
+        const cat = e.target.dataset.cat;
+        if(cod) enviar({tipo:'Vista', cod, cat, device:device()});
+        observer.unobserve(e.target);
+      }
+    });
+  },{threshold:0.5});
+  document.querySelectorAll('.card').forEach(c=>observer.observe(c));
+
+  // 2. Tiempo en lightbox
+  let lbStart=null, lbCod=null, lbCat=null;
+  const lb = document.getElementById('lb');
+  if(lb){
+    new MutationObserver(()=>{
+      if(lb.classList.contains('open')){
+        lbStart=Date.now();
+        lbCod=document.getElementById('lb-cod')?.textContent;
+        const card=[...document.querySelectorAll('.card')].find(c=>
+          c.querySelector('.codigo')?.textContent===lbCod);
+        lbCat=card?.dataset.cat||'';
+      } else {
+        if(lbStart && lbCod){
+          const secs=Math.round((Date.now()-lbStart)/1000);
+          if(secs>0) enviar({tipo:'Lightbox', cod:lbCod, cat:lbCat, secs, device:device()});
+        }
+        lbStart=null; lbCod=null;
+      }
+    }).observe(lb,{attributes:true,attributeFilter:['class']});
+  }
+
+  // 3. Búsquedas
+  const qi=document.getElementById('q');
+  if(qi){
+    let t;
+    qi.addEventListener('input',()=>{
+      clearTimeout(t);
+      t=setTimeout(()=>{
+        const q=qi.value.trim();
+        if(q.length>1) enviar({tipo:'Búsqueda', busqueda:q, device:device()});
+      },800);
+    });
+  }
+
+  // 4. Filtros
+  document.querySelectorAll('.fil button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      if(b.dataset.f!=='Todos')
+        enviar({tipo:'Filtro', cat:b.dataset.f, device:device()});
+    });
+  });
+
+  // 5. Sesión
+  enviar({tipo:'Sesión', device:device()});
+
+})();
+</script>
+
 </body>
 </html>
